@@ -1,0 +1,17 @@
+# Files the build should NOT copy into the image (faster builds, smaller image, no secret leaks).
+# Secrets — never commit real credentials.
+**/.env
+
+# Downloaded media (re-hosted photos). Regenerated at runtime; no need to track.
+**/media
+
+# Python bytecode + caches.
+**/__pycache__
+**/*.py[cod]
+
+# Virtual environments.
+**/.venv
+**/venv
+
+# OS noise.
+**/.DS_Store

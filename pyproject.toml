@@ -1,0 +1,10 @@
+# pyproject.toml is Python's standard project-config file (loosely analogous to package.json).
+# Here we use it only to configure pytest.
+
+[tool.pytest.ini_options]
+# Where the tests live.
+testpaths = ["tests"]
+
+# Add the project root to the import path so tests can `import app`, `import config`, etc.
+# Without this, pytest would only put the tests/ folder on sys.path and the imports would fail.
+pythonpath = ["."]

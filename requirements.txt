@@ -1,0 +1,8 @@
+# Pinned to recent stable major versions. `pip install -r requirements.txt` reads this file.
+# (This is roughly the role package.json's "dependencies" plays — but versions live here, and
+#  the resolved lockfile is whatever pip installs. For a learning project, loose pins are fine.)
+
+flask>=3.0,<4.0          # the web framework (routes the webhook + serves media)
+requests>=2.31,<3.0      # HTTP client used to call the are.na and Telegram APIs
+python-dotenv>=1.0,<2.0  # loads a local .env file into environment variables for dev
+gunicorn>=21.2,<24.0     # production WSGI server (Flask's built-in server is dev-only)

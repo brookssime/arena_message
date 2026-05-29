@@ -1,0 +1,44 @@
+# render.yaml — Render "Blueprint" (infrastructure-as-code).
+#
+# Render deploys differently from Fly/Koyeb: instead of pushing a local directory with a CLI,
+# you connect a Git repo and Render builds + redeploys on every push. This file describes the
+# service declaratively so the whole setup is reproducible. In the Render dashboard choose
+# "New +" → "Blueprint", point it at your repo, and Render reads this file.
+#
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web                  # a public HTTP service (vs. a worker/cron/static site)
+    name: arena-message        # also the subdomain: https://arena-message.onrender.com
+                               #   (Render appends a suffix if that name is already taken —
+                               #    confirm the real URL in the dashboard, see README)
+    runtime: docker            # build from our Dockerfile (not a native buildpack)
+    plan: free                 # the free tier (512MB RAM; sleeps after 15 min idle)
+    region: virginia           # US East, closest to the old Fly "ewr"; also: oregon, ohio, frankfurt, singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    autoDeploy: true           # redeploy automatically on every push to the connected branch
+
+    # Render checks this path to decide the service is healthy. app.py serves GET /health.
+    healthCheckPath: /health
+
+    # Render injects its own $PORT (default 10000) and detects the bound port; our Dockerfile's
+    # gunicorn binds $PORT, so there's nothing to set here.
+
+    # Every value is `sync: false`: Render does NOT read it from this file (so no secrets are
+    # ever committed). Instead Render prompts you for each one when you first create the
+    # Blueprint. PUBLIC_BASE_URL is your service's own URL — see the README for the order to
+    # enter it (deploy → confirm URL → set webhook).
+    envVars:
+      - key: ARENA_ACCESS_TOKEN
+        sync: false
+      - key: ARENA_CHANNEL_SLUG
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        sync: false
+      - key: ALLOWED_TELEGRAM_USER_ID
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false

@@ -1,0 +1,7 @@
+# Development-only dependencies (test runner). Install with:
+#   pip install -r requirements-dev.txt
+# Keeping these separate from requirements.txt means the production image stays lean.
+
+-r requirements.txt      # also pull in the runtime deps so `import app` works in tests
+
+pytest>=8.0,<9.0
