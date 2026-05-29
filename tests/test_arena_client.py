@@ -56,9 +56,12 @@ def test_create_block_with_source_builds_correct_request(arena_with_fake_session
     client, fake = arena_with_fake_session
     client.create_block(source="https://example.test/media/x.jpg")
 
-    assert fake.last_post["url"].endswith("/channels/staging-y7mhkxq-1mw/blocks")
+    assert fake.last_post["url"].endswith("/blocks")
     # Only `source` should be in the body (not `content`).
-    assert fake.last_post["json"] == {"source": "https://example.test/media/x.jpg"}
+    assert fake.last_post["json"] == {
+        "value": "https://example.test/media/x.jpg",
+        "channel_ids": [client.channel_slug],
+    }
     # We always set a timeout on network calls.
     assert fake.last_post["timeout"] is not None
 
@@ -66,7 +69,10 @@ def test_create_block_with_source_builds_correct_request(arena_with_fake_session
 def test_create_block_with_content_builds_correct_request(arena_with_fake_session):
     client, fake = arena_with_fake_session
     client.create_block(content="a note")
-    assert fake.last_post["json"] == {"content": "a note"}
+    assert fake.last_post["json"] == {
+        "value": "a note",
+        "channel_ids": [client.channel_slug],
+    }
 
 
 def test_create_block_rejects_both_source_and_content(arena_with_fake_session):
