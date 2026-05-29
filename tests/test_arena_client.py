@@ -7,39 +7,47 @@ We replace the client's internal `_session` with a fake that records requests an
 canned response.
 """
 
+from typing import override, Any
+
+from requests.structures import CaseInsensitiveDict
+
+from requests import Session, Response
+
 import pytest
 
 from arena_client import ArenaClient
 
 
-class FakeResponse:
+class FakeResponse(Response):
     """Minimal stand-in for a requests.Response."""
 
     def __init__(self, json_body):
-        self._json_body = json_body
+        self._json_body: Any = json_body
 
     def raise_for_status(self):
         # Pretend every response is a success (2xx). Real code would raise on 4xx/5xx.
         return None
 
-    def json(self):
+    def json(self, **kwargs: Any):
         return self._json_body
 
 
-class FakeSession:
+class FakeSession(Session):
     """Records the last POST/PUT so tests can assert on URL + payload."""
 
     def __init__(self):
-        self.headers = {}
+        self.headers: CaseInsensitiveDict[str] = CaseInsensitiveDict()
         self.last_post = None
         self.last_put = None
 
-    def post(self, url, json=None, timeout=None):
-        self.last_post = {"url": url, "json": json, "timeout": timeout}
+    @override
+    def post(self, url, data=None, json=None, **kwargs: Any):
+        self.last_post = {"url": url, "json": json, "timeout": kwargs["timeout"]}
         return FakeResponse({"id": 1, "class": "Image"})
 
-    def put(self, url, json=None, timeout=None):
-        self.last_put = {"url": url, "json": json, "timeout": timeout}
+    @override
+    def put(self, url, data=None, json=None, **kwargs: Any):
+        self.last_put = {"url": url, "json": json, "timeout": kwargs["timeout"]}
         return FakeResponse({"id": 1})
 
 
